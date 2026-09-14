@@ -1,0 +1,18 @@
+node_modules/
+.next/
+out/
+coverage/
+test-results/
+*.tsbuildinfo
+*.log
+.env*
+!.env.example
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+# Source configuration and model manifest belong in this repository.
+!/package.json
+!/package-lock.json
+!/tsconfig.json
+!/public/models/manifest.json

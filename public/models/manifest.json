@@ -1,0 +1,50 @@
+{
+  "inputName": "data_batch_0",
+  "inputShape": [
+    1,
+    8,
+    3,
+    320,
+    320
+  ],
+  "outputName": "linear_2.tmp_1",
+  "frames": 8,
+  "sampleEvery": 7,
+  "targetSize": 320,
+  "shortSize": 340,
+  "fightClass": 1,
+  "checks": [
+    {
+      "sample": "random",
+      "maxAbsoluteError": 1.0579824447631836e-06,
+      "paddle": [
+        [
+          0.20422327518463135,
+          -0.20505881309509277
+        ]
+      ],
+      "onnx": [
+        [
+          0.2042243331670761,
+          -0.20505975186824799
+        ]
+      ]
+    },
+    {
+      "sample": "test.mp4",
+      "maxAbsoluteError": 8.344650268554688e-07,
+      "paddle": [
+        [
+          -0.657231867313385,
+          0.6521627902984619
+        ]
+      ],
+      "onnx": [
+        [
+          -0.6572310328483582,
+          0.6521627902984619
+        ]
+      ]
+    }
+  ]
+}
