@@ -8,7 +8,14 @@
 
 Требуется **Node.js 22 LTS**, npm и современный браузер (Chrome или Edge для проверенного сценария).
 
-Скачайте репозиторий через Code → Download ZIP и распакуйте, либо выполните `git clone` с URL этого репозитория. В терминале перейдите в папку с `package.json`:
+Скачайте репозиторий через Code → Download ZIP и распакуйте, либо клонируйте:
+
+```sh
+git clone https://github.com/benhurion12-png/fight_detection_arina.git
+cd fight_detection_arina
+```
+
+В терминале из папки с `package.json`:
 
 ```sh
 npm ci
@@ -72,6 +79,6 @@ git remote add origin https://github.com/benhurion12-png/fight_detection_arina.g
 git push -u origin main
 ```
 
-Замените `YOUR_USERNAME` своим логином. Перед коммитом проверьте, что присутствуют `public/models/fight.onnx` и `manifest.json`, а `node_modules` и `.next` отсутствуют в списке.
+Перед коммитом проверьте, что присутствуют `public/models/fight.onnx` и `manifest.json`, а `node_modules` и `.next` отсутствуют в списке.
 
 ONNX-файл занимает 94 418 517 байт, около 90 МиБ: меньше лимита GitHub 100 МиБ на файл. Загрузка выполняется через Git; браузерная загрузка ограничена 25 МиБ. GitHub может показать предупреждение о большом файле. При регулярной замене больших весов лучше перейти на Git LFS или GitHub Releases.
