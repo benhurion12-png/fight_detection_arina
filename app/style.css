@@ -5,6 +5,8 @@
 body{border-top:6px solid var(--accent)}.brand{color:#008da4}.brand span{color:#009fb5}.badge{background:#e7f5f9;color:#007a90;border-color:#c6e5ed}.panel{box-shadow:0 4px 18px #234c6205}.panel-title{background:#f8fafb}.play{background:#fff;box-shadow:0 4px 16px #009fb510}.secondary{background:#fff;color:#007d93}.secondary:hover:not(:disabled){background:#eef8fb;border-color:#009fb5}button:not(.secondary):hover:not(:disabled){background:#00899e}.model{padding-bottom:4px}.live-overlay{box-shadow:0 2px 12px #15384a1a}.table-wrap tbody tr:nth-child(even){background:#f7fafb}.intro p{max-width:760px}
 
 .header-actions { display:flex; align-items:center; gap:14px; }
+.backend-switch { display:flex; gap:8px; }
+.backend-switch button { flex:1; padding:10px 12px; font-size:12px; }
 .theme-toggle { padding:10px 13px; white-space:nowrap; }
 .theme-toggle span span { font-size:17px; vertical-align:middle; margin-right:5px; }
 .to-light { display:none; }

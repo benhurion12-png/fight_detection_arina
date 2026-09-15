@@ -23,6 +23,7 @@ export default function Page() {
   const [results, setResults] = useState<Result[]>([]), [sampled, setSampled] = useState(0);
   const [liveResult, setLiveResult] = useState<Result | null>(null);
   const [backend, setBackend] = useState('Подключение…');
+  const [backendSwitching, setBackendSwitching] = useState(false);
   sampleInterval.current = 7 / fps;
 
   function resetWindow() {
@@ -30,6 +31,16 @@ export default function Page() {
   }
   function pauseAnalysis() {
     active.current = false; setRunning(false); resetWindow(); setStatus('Анализ приостановлен');
+  }
+  async function changeBackend(target: 'cpu' | 'dml') {
+    setBackendSwitching(true); setError('');
+    try {
+      const response = await fetch('/api/inference/backend', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ backend: target }) });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error);
+      setBackend(result.backend); setStatus(`Бэкенд переключён · ${result.backend}`);
+    } catch (e) { setError(`Не удалось переключить бэкенд: ${String(e)}`); }
+    finally { setBackendSwitching(false); }
   }
   function releaseSource() {
     sourceToken.current++; pauseAnalysis();
@@ -157,6 +168,7 @@ export default function Page() {
           {kind === 'camera' ? <button className="secondary" onClick={() => { releaseSource(); setKind('none'); setName('Камера выключена'); }}>Выключить камеру</button> : <button className="secondary" disabled={cameraLoading} onClick={enableCamera}>{cameraLoading ? 'Подключение…' : 'Включить веб-камеру'}</button>}</div>
       </section>
       <aside className="panel settings"><div className="panel-title">02 / МОНИТОРИНГ</div><div className="settings-body"><div className="model"><span className={`dot ${ready ? 'ready' : ''}`} /><div><strong>ppTSM Fight</strong><small>{ready ? `Сервер готов · ${backend}` : 'Модель запускается на сервере…'}</small></div></div>
+        <div className="backend-switch"><button className="secondary" disabled={backendSwitching} onClick={() => changeBackend('dml')}>{backendSwitching ? 'Переключение…' : 'GPU'}</button><button className="secondary" disabled={backendSwitching} onClick={() => changeBackend('cpu')}>{backendSwitching ? 'Переключение…' : 'CPU'}</button></div>
         <label>Частота источника, FPS<input type="number" min="1" max="240" value={fps} disabled={running} onChange={e => { const value = Number(e.target.value); setFps(Math.min(240, Math.max(1, value || 30))); resetWindow(); }}/></label><small>8 кадров с интервалом 7 / FPS. При 30 FPS первая оценка требует около 2 секунд наблюдения плюс время обработки.</small>
         <label>Порог тревоги <strong>{Math.round(threshold * 100)}%</strong><input type="range" min=".1" max=".99" step=".01" value={threshold} onChange={e => setThreshold(Number(e.target.value))}/></label>
         <div className="spec"><span>Кадров в окне</span><b>{sampled} / 8</b><span>Обработка</span><b>{backend}</b><span>Очередь запросов</span><b>Без накопления</b></div>

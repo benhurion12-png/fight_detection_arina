@@ -2,18 +2,16 @@ import { Worker } from 'node:worker_threads';
 import { resolve } from 'node:path';
 
 type Prediction = { score: number; inferenceMs: number; serverMs: number };
-type Engine = { worker: Worker; ready: Promise<void>; busy: boolean; backend?: string; failed?: string; pending?: { resolve: (value: Prediction) => void; reject: (error: Error) => void } };
+type Engine = { worker: Worker; ready: Promise<void>; busy: boolean; backend?: string; requestedBackend: string; failed?: string; pending?: { resolve: (value: Prediction) => void; reject: (error: Error) => void } };
 const shared = globalThis as typeof globalThis & { fightEngine?: Engine };
 
-export function getEngine() {
-  if (shared.fightEngine) return shared.fightEngine;
-  const worker = new Worker(resolve(process.cwd(), 'server/inference.mjs'));
+function spawnEngine(requestedBackend: string) {
+  const worker = new Worker(resolve(process.cwd(), 'server/inference.mjs'), { env: { ...process.env, FIGHT_BACKEND: requestedBackend } });
   let readyResolve!: () => void, readyReject!: (error: Error) => void;
   const ready = new Promise<void>((resolve, reject) => { readyResolve = resolve; readyReject = reject; });
   // Initialization may begin before the first request attaches its await.
   void ready.catch(() => {});
-  const engine: Engine = { worker, ready, busy: false };
-  shared.fightEngine = engine;
+  const engine: Engine = { worker, ready, busy: false, requestedBackend };
   const fail = (message: string) => {
     engine.failed = message; readyReject(new Error(message));
     engine.pending?.reject(new Error(message)); engine.pending = undefined;
@@ -29,6 +27,25 @@ export function getEngine() {
   });
   worker.on('error', error => fail(error.message));
   worker.on('exit', code => fail(`Inference worker exited (${code})`));
+  return engine;
+}
+
+export function getEngine() {
+  if (shared.fightEngine) return shared.fightEngine;
+  const defaultBackend = process.env.FIGHT_BACKEND || (process.platform === 'win32' ? 'dml' : 'cpu');
+  return shared.fightEngine = spawnEngine(defaultBackend);
+}
+
+// Explicit switch requested from the UI: tear down the current worker (if any)
+// and start a fresh one pinned to the requested backend, bypassing the
+// automatic DirectML-then-CPU fallback so the user's choice is respected.
+export async function switchBackend(requestedBackend: 'cpu' | 'dml') {
+  const current = shared.fightEngine;
+  if (current && current.requestedBackend === requestedBackend && !current.failed) return current;
+  void current?.worker.terminate();
+  const engine = spawnEngine(requestedBackend);
+  shared.fightEngine = engine;
+  await engine.ready.catch(() => {});
   return engine;
 }
 
