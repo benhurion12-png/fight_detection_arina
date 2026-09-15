@@ -1,0 +1,16 @@
+[build]
+  command = "npm run build"
+
+[functions]
+  # Belt-and-suspenders alongside next.config.ts's outputFileTracingIncludes:
+  # make sure the onnxruntime-node native binary, the worker script and the
+  # model files are bundled into the /api/inference serverless function even
+  # if Next's own file tracing is not fully honored by the Next runtime.
+  included_files = [
+    "server/inference.mjs",
+    "public/models/fight.onnx",
+    "public/models/manifest.json",
+    "node_modules/onnxruntime-node/dist/**",
+    "node_modules/onnxruntime-node/bin/napi-v6/linux/x64/**",
+    "node_modules/onnxruntime-common/**",
+  ]
